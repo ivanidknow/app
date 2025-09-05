@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-task
+  namespace: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-task
+  template:
+    metadata:
+      labels:
+        app: test-task
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: cp           # фиксируем ноду
+      containers:
+        - name: app
+          image: test-task:0.1               # локальный образ на cp
+          imagePullPolicy: IfNotPresent      # не тянем из реестра
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet: { path: /ping, port: 8000 }
+            initialDelaySeconds: 3
+          livenessProbe:
+            httpGet: { path: /ping, port: 8000 }
+            initialDelaySeconds: 10
