@@ -6,7 +6,7 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 build_image:
-  tags: ["k8s"]
+  tags: ["main"]
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -29,7 +29,7 @@ build_image:
 smoke:
   stage: build
   image: alpine:3.20
-  tags: ["k8s"]
+  tags: ["main"]
   script:
     - echo "runner OK"
     - uname -a
