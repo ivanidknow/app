@@ -1,0 +1,26 @@
+stages: [build]
+
+variables:
+  DOCKERFILE: Dockerfile
+  IMAGE_NAME: $CI_REGISTRY_IMAGE
+  IMAGE_TAG: $CI_COMMIT_SHORT_SHA
+
+build_image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - mkdir -p /kaniko/.docker
+    - >
+      cat > /kaniko/.docker/config.json <<EOF
+      {"auths":{"$CI_REGISTRY":{"username":"$CI_REGISTRY_USER","password":"$CI_REGISTRY_PASSWORD"}}}
+      EOF
+    - >
+      /kaniko/executor
+      --dockerfile $DOCKERFILE --context $CI_PROJECT_DIR
+      --destination ${IMAGE_NAME}:${IMAGE_TAG}
+      --destination ${IMAGE_NAME}:latest
+      --snapshotMode=redo --use-new-run
+  rules:
+    - if: $CI_COMMIT_BRANCH
