@@ -6,6 +6,7 @@ variables:
   IMAGE_TAG: $CI_COMMIT_SHORT_SHA
 
 build_image:
+  tags: ["k8s"]
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
@@ -24,3 +25,11 @@ build_image:
       --snapshotMode=redo --use-new-run
   rules:
     - if: $CI_COMMIT_BRANCH
+
+smoke:
+  stage: build
+  image: alpine:3.20
+  tags: ["k8s"]
+  script:
+    - echo "runner OK"
+    - uname -a
