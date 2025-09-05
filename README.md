@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # app
 
 
@@ -91,3 +92,28 @@ For open source projects, say how it is licensed.
 
 ## Project status
 If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+=======
+## Нагрузочное тестирование
+
+Инструмент: ApacheBench (ab), стенд: локальный docker-compose.
+
+### /ping (лёгкий эндпоинт)
+Команда:
+ab -k -t 30 -c 200 http://localhost:8000/ping/ | tee bench_ping.txt
+
+Результаты (выжимка):
+- Requests per second: **2178.44 req/s (mean)**
+- Latency p95: **~118 ms**
+- Non-2xx responses: **0** (строки нет → 0)
+
+### /healthz (DB+Redis)
+Команда:
+ab -k -t 30 -c 100 http://localhost:8000/healthz | tee bench_healthz.txt
+
+Результаты (выжимка):
+- Requests per second: **641.61 req/s (mean)**
+- Latency p95: **~201 ms**
+- Non-2xx responses: **0**
+
+Примечание: `/healthz` ожидаемо медленнее из-за обращений к Postgres и Redis.
+>>>>>>> 7bb422d (init: app + ci)
