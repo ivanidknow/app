@@ -7,24 +7,27 @@ variables:
 
 build_image:
   stage: build
-  image: gcr.io/kaniko-project/executor:debug
-  entrypoint: [""]
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]           # ← правильно: внутри image
+  tags: ["main"]
   variables:
-    # если GitLab CE не подставляет сам — раскомментируй/подправь:
+    DOCKER_CONFIG: /kaniko/.docker
+    # Если CE не подставляет сам — добавь эти переменные в Settings→CI/CD→Variables:
     # CI_REGISTRY: "192.168.0.10:5050"
-    # CI_REGISTRY_IMAGE: "192.168.0.10:5050/root/app"
+    # CI_REGISTRY_IMAGE: "192.168.0.10:5050/<group>/app"
+    # CI_REGISTRY_USER: "<deploy-user>"
+    # CI_REGISTRY_PASSWORD: "<deploy-token>"
   script:
-    - mkdir -p /kaniko/.docker
-    # аккуратно пишем JSON с учётом кавычек и пробелов
-    - printf '{"auths":{"%s":{"username":"%s","password":"%s"}}}\n' "$CI_REGISTRY" "$CI_REGISTRY_USER" "$CI_REGISTRY_PASSWORD" > /kaniko/.docker/config.json
-    # пушим в HTTP-реестр (без TLS)
+    - mkdir -p "$DOCKER_CONFIG"
+    - printf '{"auths":{"%s":{"username":"%s","password":"%s"}}}\n' \
+        "$CI_REGISTRY" "$CI_REGISTRY_USER" "$CI_REGISTRY_PASSWORD" > "$DOCKER_CONFIG/config.json"
     - /kaniko/executor --context "$CI_PROJECT_DIR" --dockerfile Dockerfile \
         --destination "${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA}" \
         --destination "${CI_REGISTRY_IMAGE}:latest" \
         --insecure --skip-tls-verify
   rules:
     - if: $CI_COMMIT_BRANCH
-  tags: ["main"]
 
 smoke:
   stage: build
